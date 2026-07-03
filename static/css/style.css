@@ -1,0 +1,290 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+:root {
+  --bg: #12181a;
+  --panel: #1b2422;
+  --panel-alt: #212b28;
+  --border: #2c3a36;
+  --text: #ece8de;
+  --muted: #7c8c86;
+  --accent: #e0a458;
+  --accent-dim: #8a6a3f;
+  --accent2: #6fcf97;
+  --danger: #d9695f;
+
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-mono);
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 48px 24px 80px;
+  line-height: 1.5;
+}
+
+h1 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 22px;
+  letter-spacing: 0.02em;
+  margin: 0 0 4px;
+  color: var(--text);
+}
+
+h1 .eyebrow {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 10px;
+}
+
+h2 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 40px 0 14px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+/* ---------- panels ---------- */
+
+#process-form {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 20px;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 13px;
+}
+
+#process-table th {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-align: left;
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+#process-table td {
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+#process-table tr:last-child td {
+  border-bottom: none;
+}
+
+input[type="number"] {
+  width: 64px;
+  background: var(--panel-alt);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  padding: 5px 8px;
+  border-radius: 4px;
+}
+
+input[type="number"]:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+#algorithm-field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+select {
+  background: var(--panel-alt);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  padding: 6px 10px;
+  border-radius: 4px;
+}
+
+select:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+#quantum-field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 18px 0 4px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* ---------- buttons ---------- */
+
+button {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  padding: 8px 14px;
+  margin: 12px 8px 4px 0;
+  cursor: pointer;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: var(--panel-alt);
+  color: var(--text);
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+button:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+#run-btn {
+  background: var(--accent);
+  color: #1a1206;
+  border: 1px solid var(--accent);
+  font-weight: 600;
+}
+
+#run-btn:hover {
+  background: #eab873;
+  color: #1a1206;
+}
+
+.remove-row-btn {
+  padding: 2px 8px;
+  margin: 0;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.remove-row-btn:hover {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+/* ---------- gantt chart: timing-diagram style ---------- */
+
+#gantt-wrapper {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 24px 20px 14px;
+  overflow-x: auto;
+}
+
+#gantt-chart {
+  display: flex;
+  align-items: stretch;
+  height: 56px;
+  position: relative;
+}
+
+.gantt-block {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 13px;
+  color: #12181a;
+  border-right: 2px solid var(--bg);
+  position: relative;
+}
+
+.gantt-block:last-child {
+  border-right: none;
+}
+
+.gantt-ruler {
+  display: flex;
+  height: 18px;
+  margin-top: 2px;
+  position: relative;
+}
+
+.gantt-tick {
+  position: relative;
+  border-left: 1px solid var(--border);
+  font-size: 10px;
+  color: var(--muted);
+  padding-left: 3px;
+  flex-shrink: 0;
+}
+
+.gantt-tick:first-child {
+  border-left: none;
+}
+
+/* ---------- results table ---------- */
+
+#results-table {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+#results-table th {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-align: center;
+  padding: 10px 8px;
+  background: var(--panel-alt);
+  border-bottom: 1px solid var(--border);
+}
+
+#results-table td {
+  padding: 9px 8px;
+  border-bottom: 1px solid var(--border);
+  text-align: center;
+  font-size: 13px;
+}
+
+#results-table tr:last-child td {
+  border-bottom: none;
+}
+
+#results-table td:first-child {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+#averages {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--accent2);
+  margin-top: 14px;
+  letter-spacing: 0.02em;
+}
