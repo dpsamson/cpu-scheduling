@@ -15,6 +15,11 @@ function updateFormForAlgorithm() {
   } else {
     quantumField.style.display = "none";
   }
+
+  const showPriority = algorithmSelect.value === "priority";
+  document.querySelectorAll(".priority-col").forEach(el => {
+    el.style.display = showPriority ? "table-cell" : "none";
+  });
 }
 
 algorithmSelect.addEventListener("change", updateFormForAlgorithm);
@@ -29,12 +34,16 @@ function addProcessRow() {
     <td>P${processCount}</td>
     <td><input type="number" class="arrival-input" min="0" value="0"></td>
     <td><input type="number" class="burst-input" min="1" value="1"></td>
+    <td class="priority-col"><input type="number" class="priority-input" min="1" value="1"></td>
     <td><button class="remove-row-btn">x</button></td>
   `;
   row.querySelector(".remove-row-btn").addEventListener("click", () => {
     row.remove();
   });
   processRows.appendChild(row);
+
+  // newly added rows should respect whatever algorithm is currently selected
+  updateFormForAlgorithm();
 }
 
 addRowBtn.addEventListener("click", addProcessRow);
@@ -49,11 +58,17 @@ function collectProcesses() {
   rows.forEach((row, index) => {
     const arrival = parseInt(row.querySelector(".arrival-input").value);
     const burst = parseInt(row.querySelector(".burst-input").value);
-    processes.push({
+    const process = {
       pid: `P${index + 1}`,
       arrival_time: arrival,
       burst_time: burst,
-    });
+    };
+
+    if (algorithmSelect.value === "priority") {
+      process.priority = parseInt(row.querySelector(".priority-input").value);
+    }
+
+    processes.push(process);
   });
   return processes;
 }
@@ -110,12 +125,15 @@ function renderTable(table) {
   let totalWaiting = 0;
   let totalTurnaround = 0;
 
+  const showPriority = algorithmSelect.value === "priority";
+
   table.forEach(row => {
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td>${row.pid}</td>
       <td>${row.arrival_time}</td>
       <td>${row.burst_time}</td>
+      <td class="priority-col" style="display: ${showPriority ? "table-cell" : "none"}">${showPriority ? row.priority : ""}</td>
       <td>${row.completion_time}</td>
       <td>${row.turnaround_time}</td>
       <td>${row.waiting_time}</td>
@@ -142,6 +160,8 @@ runBtn.addEventListener("click", async () => {
     payload.quantum = parseInt(document.getElementById("quantum").value);
   } else if (algorithm === "srtf") {
     endpoint = "/schedule/srtf";
+  } else if (algorithm === "priority") {
+    endpoint = "/schedule/priority";
   }
 
   try {
