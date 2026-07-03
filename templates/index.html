@@ -15,6 +15,7 @@
       <select id="algorithm">
         <option value="round-robin">Round Robin</option>
         <option value="srtf">SRTF (Shortest Remaining Time First)</option>
+        <option value="priority">Preemptive Priority</option>
       </select>
     </div>
 
@@ -25,6 +26,7 @@
           <th>PID</th>
           <th>Arrival Time</th>
           <th>Burst Time</th>
+          <th class="priority-col">Priority</th>
           <th></th>
         </tr>
       </thead>
@@ -55,6 +57,7 @@
         <th>PID</th>
         <th>Arrival Time</th>
         <th>Burst Time</th>
+        <th class="priority-col">Priority</th>
         <th>Completion Time</th>
         <th>Turnaround Time</th>
         <th>Waiting Time</th>
