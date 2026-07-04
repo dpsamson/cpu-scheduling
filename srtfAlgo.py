@@ -5,6 +5,7 @@ def srtf(processes):
 
     Returns a dict with:
         "gantt": list of {"pid": ..., "start": ..., "end": ...}
+                 (pid is "IDLE" for any gap where the CPU has nothing to run)
         "table": list of {"pid", "arrival_time", "burst_time",
                            "completion_time", "turnaround_time", "waiting_time"}
     """
@@ -21,19 +22,23 @@ def srtf(processes):
 
     n = len(procs)
     completed_count = 0
-    time = min(p["arrival_time"] for p in procs)  # start at earliest arrival
+    time = 0  # always start at 0 so leading idle time is captured
 
     gantt = []
-    current_pid = None  # which process ran during the previous tick
+    current_pid = None  # which "lane" ran during the previous tick (a pid, or "IDLE")
 
     while completed_count < n:
         # gather all processes that have arrived and still have work left
         available = [p for p in procs if p["arrival_time"] <= time and p["remaining_time"] > 0]
 
         if not available:
-            # CPU is idle, nothing has arrived yet, jump time forward
+            # CPU idle: record/extend an IDLE segment instead of silently skipping
+            if current_pid == "IDLE" and gantt:
+                gantt[-1]["end"] += 1
+            else:
+                gantt.append({"pid": "IDLE", "start": time, "end": time + 1})
+            current_pid = "IDLE"
             time += 1
-            current_pid = None
             continue
 
         # pick the process with the smallest remaining time
@@ -78,10 +83,10 @@ def srtf(processes):
 
 if __name__ == "__main__":
     test_processes = [
-        {"pid": "P1", "arrival_time": 0, "burst_time": 8},
-        {"pid": "P2", "arrival_time": 1, "burst_time": 4},
-        {"pid": "P3", "arrival_time": 2, "burst_time": 9},
-        {"pid": "P4", "arrival_time": 3, "burst_time": 5},
+        {"pid": "P1", "arrival_time": 2, "burst_time": 8},
+        {"pid": "P2", "arrival_time": 3, "burst_time": 4},
+        {"pid": "P3", "arrival_time": 4, "burst_time": 9},
+        {"pid": "P4", "arrival_time": 5, "burst_time": 5},
     ]
     result = srtf(test_processes)
     print("Gantt Chart:")

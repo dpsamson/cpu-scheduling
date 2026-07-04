@@ -24,7 +24,7 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: var(--font-mono);
-  max-width: 920px;
+  max-width: 1180px;
   margin: 0 auto;
   padding: 48px 24px 80px;
   line-height: 1.5;
@@ -60,6 +60,38 @@ h2 {
   margin: 40px 0 14px;
   padding-bottom: 8px;
   border-bottom: 1px solid var(--border);
+}
+
+/* ---------- two-column layout ---------- */
+
+#top-row {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+#left-col {
+  flex: 0 0 420px;
+}
+
+#right-col {
+  flex: 1;
+  min-width: 0;
+}
+
+#right-col h2 {
+  margin-top: 0;
+}
+
+@media (max-width: 760px) {
+  #top-row {
+    flex-direction: column;
+  }
+
+  #left-col {
+    flex: 1 1 auto;
+    width: 100%;
+  }
 }
 
 /* ---------- panels ---------- */
@@ -218,10 +250,16 @@ button:hover {
   color: #12181a;
   border-right: 2px solid var(--bg);
   position: relative;
+  flex-shrink: 0;
 }
 
 .gantt-block:last-child {
   border-right: none;
+}
+
+.gantt-block-idle {
+  color: var(--muted);
+  font-style: italic;
 }
 
 .gantt-ruler {

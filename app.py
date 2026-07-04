@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, jsonify
 from roundRobinAlgo import round_robin
 from srtfAlgo import srtf
+from priorityAlgo import preemptive_priority
 
 app = Flask(__name__)
 
@@ -34,6 +35,22 @@ def schedule_srtf():
         return jsonify({"error": "Missing processes"}), 400
 
     result = srtf(processes)
+    return jsonify(result)
+
+
+@app.route("/schedule/priority", methods=["POST"])
+def schedule_priority():
+    data = request.get_json()
+
+    processes = data.get("processes", [])
+
+    if not processes:
+        return jsonify({"error": "Missing processes"}), 400
+
+    if any("priority" not in p for p in processes):
+        return jsonify({"error": "Each process must include a priority value"}), 400
+
+    result = preemptive_priority(processes)
     return jsonify(result)
 
 

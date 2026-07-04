@@ -8,17 +8,19 @@ const averagesEl = document.getElementById("averages");
 
 const algorithmSelect = document.getElementById("algorithm");
 const quantumField = document.getElementById("quantum-field");
+const priorityHeaderCells = document.querySelectorAll(".priority-col");
 
 function updateFormForAlgorithm() {
-  if (algorithmSelect.value === "round-robin") {
-    quantumField.style.display = "flex";
-  } else {
-    quantumField.style.display = "none";
-  }
+  const algorithm = algorithmSelect.value;
 
-  const showPriority = algorithmSelect.value === "priority";
-  document.querySelectorAll(".priority-col").forEach(el => {
-    el.style.display = showPriority ? "table-cell" : "none";
+  quantumField.style.display = algorithm === "round-robin" ? "flex" : "none";
+
+  const showPriority = algorithm === "priority";
+  priorityHeaderCells.forEach(cell => {
+    cell.style.display = showPriority ? "" : "none";
+  });
+  document.querySelectorAll(".priority-input-cell").forEach(cell => {
+    cell.style.display = showPriority ? "" : "none";
   });
 }
 
@@ -30,20 +32,20 @@ let processCount = 0;
 function addProcessRow() {
   processCount++;
   const row = document.createElement("tr");
+  const showPriority = algorithmSelect.value === "priority";
   row.innerHTML = `
     <td>P${processCount}</td>
     <td><input type="number" class="arrival-input" min="0" value="0"></td>
     <td><input type="number" class="burst-input" min="1" value="1"></td>
-    <td class="priority-col"><input type="number" class="priority-input" min="1" value="1"></td>
+    <td class="priority-input-cell" style="display: ${showPriority ? "" : "none"}">
+      <input type="number" class="priority-input" min="1" value="1">
+    </td>
     <td><button class="remove-row-btn">x</button></td>
   `;
   row.querySelector(".remove-row-btn").addEventListener("click", () => {
     row.remove();
   });
   processRows.appendChild(row);
-
-  // newly added rows should respect whatever algorithm is currently selected
-  updateFormForAlgorithm();
 }
 
 addRowBtn.addEventListener("click", addProcessRow);
@@ -51,6 +53,7 @@ addRowBtn.addEventListener("click", addProcessRow);
 // start with 2 rows by default
 addProcessRow();
 addProcessRow();
+updateFormForAlgorithm();
 
 function collectProcesses() {
   const rows = processRows.querySelectorAll("tr");
@@ -58,17 +61,13 @@ function collectProcesses() {
   rows.forEach((row, index) => {
     const arrival = parseInt(row.querySelector(".arrival-input").value);
     const burst = parseInt(row.querySelector(".burst-input").value);
-    const process = {
+    const priority = parseInt(row.querySelector(".priority-input").value);
+    processes.push({
       pid: `P${index + 1}`,
       arrival_time: arrival,
       burst_time: burst,
-    };
-
-    if (algorithmSelect.value === "priority") {
-      process.priority = parseInt(row.querySelector(".priority-input").value);
-    }
-
-    processes.push(process);
+      priority: priority,
+    });
   });
   return processes;
 }
@@ -79,6 +78,9 @@ const pidColors = {};
 let colorIndex = 0;
 
 function colorForPid(pid) {
+  if (pid === "IDLE") {
+    return "#3a4642"; // muted graphite, visually distinct from process colors
+  }
   if (!pidColors[pid]) {
     pidColors[pid] = PALETTE[colorIndex % PALETTE.length];
     colorIndex++;
@@ -97,6 +99,9 @@ function renderGanttChart(gantt) {
 
     const block = document.createElement("div");
     block.classList.add("gantt-block");
+    if (seg.pid === "IDLE") {
+      block.classList.add("gantt-block-idle");
+    }
     block.style.width = `${duration * UNIT_WIDTH}px`;
     block.style.background = colorForPid(seg.pid);
     block.textContent = seg.pid;
@@ -124,7 +129,6 @@ function renderTable(table) {
   resultsRows.innerHTML = "";
   let totalWaiting = 0;
   let totalTurnaround = 0;
-
   const showPriority = algorithmSelect.value === "priority";
 
   table.forEach(row => {
@@ -133,7 +137,7 @@ function renderTable(table) {
       <td>${row.pid}</td>
       <td>${row.arrival_time}</td>
       <td>${row.burst_time}</td>
-      <td class="priority-col" style="display: ${showPriority ? "table-cell" : "none"}">${showPriority ? row.priority : ""}</td>
+      <td class="priority-col" style="display: ${showPriority ? "" : "none"}">${row.priority ?? ""}</td>
       <td>${row.completion_time}</td>
       <td>${row.turnaround_time}</td>
       <td>${row.waiting_time}</td>
@@ -145,7 +149,7 @@ function renderTable(table) {
 
   const avgWaiting = (totalWaiting / table.length).toFixed(2);
   const avgTurnaround = (totalTurnaround / table.length).toFixed(2);
-  averagesEl.textContent = `Average Waiting Time: ${avgWaiting} | Average Turnaround Time: ${avgTurnaround}`;
+  averagesEl.textContent = `Average Waiting Time: ${avgWaiting}ms | Average Turnaround Time: ${avgTurnaround}ms`;
 }
 
 runBtn.addEventListener("click", async () => {

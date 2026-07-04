@@ -6,6 +6,7 @@ def round_robin(processes, quantum):
 
     Returns a dict with:
         "gantt": list of {"pid": ..., "start": ..., "end": ...}
+                 (pid is "IDLE" for any gap where the CPU has nothing to run)
         "table": list of {"pid", "arrival_time", "burst_time",
                            "completion_time", "turnaround_time", "waiting_time"}
     """
@@ -20,30 +21,37 @@ def round_robin(processes, quantum):
             "remaining_time": p["burst_time"],
         })
 
-    # sort by arrival time so we know the order they become "visible"
-    procs.sort(key=lambda p: p["arrival_time"])
+    # sort by arrival time (then pid, for stable tie-breaking) so we know
+    # the order they become "visible"
+    procs.sort(key=lambda p: (p["arrival_time"], p["pid"]))
 
-    time = 0
+    n = len(procs)
+    i = 0             # pointer into procs, tracks who has "arrived" already
+    time = 0          # always start the clock at 0 so leading idle time shows up
     queue = []
     gantt = []
     completed = []
-    i = 0  # pointer into procs, tracks who has "arrived" already
-    n = len(procs)
 
-    # start the clock at the first process' arrival time
-    if procs:
-        time = procs[0]["arrival_time"]
-
-    # add any processes that arrive at time 0 (or the starting time)
+    # add any processes that arrive at time 0
     while i < n and procs[i]["arrival_time"] <= time:
         queue.append(procs[i])
         i += 1
 
-    while queue:
+    # keep going as long as there's something queued OR something still to arrive
+    while queue or i < n:
+        if not queue:
+            # CPU is idle: nothing queued yet, jump forward to the next arrival
+            next_arrival = procs[i]["arrival_time"]
+            gantt.append({"pid": "IDLE", "start": time, "end": next_arrival})
+            time = next_arrival
+            while i < n and procs[i]["arrival_time"] <= time:
+                queue.append(procs[i])
+                i += 1
+            continue
+
         current = queue.pop(0)
 
-        # if this process hasn't started yet and there's a gap, jump time forward
-        start_time = max(time, current["arrival_time"])
+        start_time = time
         run_time = min(quantum, current["remaining_time"])
         end_time = start_time + run_time
 
@@ -62,7 +70,6 @@ def round_robin(processes, quantum):
         else:
             current["completion_time"] = time
             completed.append(current)
-
 
     # build the results table
     table = []
@@ -85,11 +92,11 @@ def round_robin(processes, quantum):
 
 
 if __name__ == "__main__":
-    # quick manual test
+    # quick manual test with a leading idle gap (nothing arrives until t=2)
     test_processes = [
-        {"pid": "P1", "arrival_time": 0, "burst_time": 5},
-        {"pid": "P2", "arrival_time": 1, "burst_time": 3},
-        {"pid": "P3", "arrival_time": 2, "burst_time": 1},
+        {"pid": "P1", "arrival_time": 2, "burst_time": 5},
+        {"pid": "P2", "arrival_time": 3, "burst_time": 3},
+        {"pid": "P3", "arrival_time": 4, "burst_time": 1},
     ]
     result = round_robin(test_processes, quantum=2)
     print("Gantt Chart:")

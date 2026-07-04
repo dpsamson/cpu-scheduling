@@ -9,39 +9,62 @@
 
   <h1><span class="eyebrow">CpE — Operating Systems</span>CPU Scheduling Calculator</h1>
 
-  <div id="process-form">
-    <div id="algorithm-field">
-      <label for="algorithm">Algorithm:</label>
-      <select id="algorithm">
-        <option value="round-robin">Round Robin</option>
-        <option value="srtf">SRTF (Shortest Remaining Time First)</option>
-        <option value="priority">Preemptive Priority</option>
-      </select>
+  <div id="top-row">
+    <div id="left-col">
+      <div id="process-form">
+        <div id="algorithm-field">
+          <label for="algorithm">Algorithm:</label>
+          <select id="algorithm">
+            <option value="round-robin">Round Robin</option>
+            <option value="srtf">SRTF (Shortest Remaining Time First)</option>
+            <option value="priority">Preemptive Priority</option>
+          </select>
+        </div>
+
+        <h2>Processes</h2>
+        <table id="process-table">
+          <thead>
+            <tr>
+              <th>PID</th>
+              <th>Arrival Time</th>
+              <th>Burst Time</th>
+              <th class="priority-col">Priority</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="process-rows">
+            <!-- rows added by JS -->
+          </tbody>
+        </table>
+        <button id="add-row-btn">+ Add Process</button>
+
+        <div id="quantum-field">
+          <label for="quantum">Time Quantum:</label>
+          <input type="number" id="quantum" min="1" value="2">
+        </div>
+
+        <button id="run-btn">Run</button>
+      </div>
     </div>
 
-    <h2>Processes</h2>
-    <table id="process-table">
-      <thead>
-        <tr>
-          <th>PID</th>
-          <th>Arrival Time</th>
-          <th>Burst Time</th>
-          <th class="priority-col">Priority</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody id="process-rows">
-        <!-- rows added by JS -->
-      </tbody>
-    </table>
-    <button id="add-row-btn">+ Add Process</button>
-
-    <div id="quantum-field">
-      <label for="quantum">Time Quantum:</label>
-      <input type="number" id="quantum" min="1" value="2">
+    <div id="right-col">
+      <h2>Results Table</h2>
+      <table id="results-table">
+        <thead>
+          <tr>
+            <th>PID</th>
+            <th>Arrival Time</th>
+            <th>Burst Time</th>
+            <th class="priority-col">Priority</th>
+            <th>Completion Time</th>
+            <th>Turnaround Time</th>
+            <th>Waiting Time</th>
+          </tr>
+        </thead>
+        <tbody id="results-rows"></tbody>
+      </table>
+      <p id="averages"></p>
     </div>
-
-    <button id="run-btn">Run</button>
   </div>
 
   <h2>Gantt Chart</h2>
@@ -49,24 +72,6 @@
     <div id="gantt-chart"></div>
     <div id="gantt-ruler" class="gantt-ruler"></div>
   </div>
-
-  <h2>Results Table</h2>
-  <table id="results-table">
-    <thead>
-      <tr>
-        <th>PID</th>
-        <th>Arrival Time</th>
-        <th>Burst Time</th>
-        <th class="priority-col">Priority</th>
-        <th>Completion Time</th>
-        <th>Turnaround Time</th>
-        <th>Waiting Time</th>
-      </tr>
-    </thead>
-    <tbody id="results-rows"></tbody>
-  </table>
-
-  <p id="averages"></p>
 
   <script src="/static/js/script.js"></script>
 </body>
