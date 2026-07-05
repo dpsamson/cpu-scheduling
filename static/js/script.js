@@ -138,7 +138,8 @@ function renderTable(table) {
       <td>${row.arrival_time}</td>
       <td>${row.burst_time}</td>
       <td class="priority-col" style="display: ${showPriority ? "" : "none"}">${row.priority ?? ""}</td>
-      <td>${row.completion_time}</td>
+      <td>${row.start_time}</td>
+      <td>${row.end_time}</td>
       <td>${row.turnaround_time}</td>
       <td>${row.waiting_time}</td>
     `;

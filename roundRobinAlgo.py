@@ -8,7 +8,7 @@ def round_robin(processes, quantum):
         "gantt": list of {"pid": ..., "start": ..., "end": ...}
                  (pid is "IDLE" for any gap where the CPU has nothing to run)
         "table": list of {"pid", "arrival_time", "burst_time",
-                           "completion_time", "turnaround_time", "waiting_time"}
+                           "start_time", "end_time", "turnaround_time", "waiting_time"}
     """
 
     # work on copies so we don't mutate the original input
@@ -19,6 +19,7 @@ def round_robin(processes, quantum):
             "arrival_time": p["arrival_time"],
             "burst_time": p["burst_time"],
             "remaining_time": p["burst_time"],
+            "start_time": None,  # set the first time this process actually runs
         })
 
     # sort by arrival time (then pid, for stable tie-breaking) so we know
@@ -51,14 +52,17 @@ def round_robin(processes, quantum):
 
         current = queue.pop(0)
 
-        start_time = time
-        run_time = min(quantum, current["remaining_time"])
-        end_time = start_time + run_time
+        if current["start_time"] is None:
+            current["start_time"] = time
 
-        gantt.append({"pid": current["pid"], "start": start_time, "end": end_time})
+        slice_start = time
+        run_time = min(quantum, current["remaining_time"])
+        slice_end = slice_start + run_time
+
+        gantt.append({"pid": current["pid"], "start": slice_start, "end": slice_end})
 
         current["remaining_time"] -= run_time
-        time = end_time
+        time = slice_end
 
         # add any new arrivals that showed up during this slice
         while i < n and procs[i]["arrival_time"] <= time:
@@ -68,19 +72,20 @@ def round_robin(processes, quantum):
         if current["remaining_time"] > 0:
             queue.append(current)
         else:
-            current["completion_time"] = time
+            current["end_time"] = time
             completed.append(current)
 
     # build the results table
     table = []
     for p in completed:
-        turnaround_time = p["completion_time"] - p["arrival_time"]
+        turnaround_time = p["end_time"] - p["arrival_time"]
         waiting_time = turnaround_time - p["burst_time"]
         table.append({
             "pid": p["pid"],
             "arrival_time": p["arrival_time"],
             "burst_time": p["burst_time"],
-            "completion_time": p["completion_time"],
+            "start_time": p["start_time"],
+            "end_time": p["end_time"],
             "turnaround_time": turnaround_time,
             "waiting_time": waiting_time,
         })
@@ -89,19 +94,3 @@ def round_robin(processes, quantum):
     table.sort(key=lambda row: row["pid"])
 
     return {"gantt": gantt, "table": table}
-
-
-if __name__ == "__main__":
-    # quick manual test with a leading idle gap (nothing arrives until t=2)
-    test_processes = [
-        {"pid": "P1", "arrival_time": 2, "burst_time": 5},
-        {"pid": "P2", "arrival_time": 3, "burst_time": 3},
-        {"pid": "P3", "arrival_time": 4, "burst_time": 1},
-    ]
-    result = round_robin(test_processes, quantum=2)
-    print("Gantt Chart:")
-    for seg in result["gantt"]:
-        print(f"  {seg['pid']}: {seg['start']} -> {seg['end']}")
-    print("\nTable:")
-    for row in result["table"]:
-        print(row)

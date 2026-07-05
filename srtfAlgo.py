@@ -7,7 +7,7 @@ def srtf(processes):
         "gantt": list of {"pid": ..., "start": ..., "end": ...}
                  (pid is "IDLE" for any gap where the CPU has nothing to run)
         "table": list of {"pid", "arrival_time", "burst_time",
-                           "completion_time", "turnaround_time", "waiting_time"}
+                           "start_time", "end_time", "turnaround_time", "waiting_time"}
     """
 
     procs = []
@@ -17,7 +17,8 @@ def srtf(processes):
             "arrival_time": p["arrival_time"],
             "burst_time": p["burst_time"],
             "remaining_time": p["burst_time"],
-            "completion_time": None,
+            "start_time": None,  # set the first time this process actually runs
+            "end_time": None,
         })
 
     n = len(procs)
@@ -45,6 +46,9 @@ def srtf(processes):
         # ties broken by arrival time, then pid, to keep results consistent
         chosen = min(available, key=lambda p: (p["remaining_time"], p["arrival_time"], p["pid"]))
 
+        if chosen["start_time"] is None:
+            chosen["start_time"] = time
+
         # run the chosen process for exactly 1 time unit
         if chosen["pid"] == current_pid and gantt:
             # same process as last tick, just extend the last Gantt segment
@@ -58,20 +62,21 @@ def srtf(processes):
         time += 1
 
         if chosen["remaining_time"] == 0:
-            chosen["completion_time"] = time
+            chosen["end_time"] = time
             completed_count += 1
             current_pid = None  # force a new Gantt segment for whoever runs next
 
     # build the results table
     table = []
     for p in procs:
-        turnaround_time = p["completion_time"] - p["arrival_time"]
+        turnaround_time = p["end_time"] - p["arrival_time"]
         waiting_time = turnaround_time - p["burst_time"]
         table.append({
             "pid": p["pid"],
             "arrival_time": p["arrival_time"],
             "burst_time": p["burst_time"],
-            "completion_time": p["completion_time"],
+            "start_time": p["start_time"],
+            "end_time": p["end_time"],
             "turnaround_time": turnaround_time,
             "waiting_time": waiting_time,
         })
@@ -79,19 +84,3 @@ def srtf(processes):
     table.sort(key=lambda row: row["pid"])
 
     return {"gantt": gantt, "table": table}
-
-
-if __name__ == "__main__":
-    test_processes = [
-        {"pid": "P1", "arrival_time": 2, "burst_time": 8},
-        {"pid": "P2", "arrival_time": 3, "burst_time": 4},
-        {"pid": "P3", "arrival_time": 4, "burst_time": 9},
-        {"pid": "P4", "arrival_time": 5, "burst_time": 5},
-    ]
-    result = srtf(test_processes)
-    print("Gantt Chart:")
-    for seg in result["gantt"]:
-        print(f"  {seg['pid']}: {seg['start']} -> {seg['end']}")
-    print("\nTable:")
-    for row in result["table"]:
-        print(row)
