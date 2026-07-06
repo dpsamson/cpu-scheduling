@@ -1,18 +1,4 @@
 def preemptive_priority(processes):
-    """
-    processes: list of dicts, each like:
-        {"pid": "P1", "arrival_time": 0, "burst_time": 5, "priority": 2}
-
-    Convention: LOWER priority number = HIGHER priority (runs first).
-    Flip the comparison in the `chosen = min(...)` line below if your
-    assignment uses the opposite convention.
-
-    Returns a dict with:
-        "gantt": list of {"pid": ..., "start": ..., "end": ...}
-                 (pid is "IDLE" for any gap where the CPU has nothing to run)
-        "table": list of {"pid", "arrival_time", "burst_time", "priority",
-                           "start_time", "end_time", "turnaround_time", "waiting_time"}
-    """
 
     procs = []
     for p in processes:

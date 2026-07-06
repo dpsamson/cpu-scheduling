@@ -1,9 +1,25 @@
+import sys
+import os
+import threading
+import webbrowser
+import time
 from flask import Flask, render_template, request, jsonify
 from roundRobinAlgo import round_robin
 from srtfAlgo import srtf
 from priorityAlgo import preemptive_priority
 
-app = Flask(__name__)
+# when PyInstaller bundles this into an exe, resources get extracted to a
+# temporary folder pointed to by sys._MEIPASS; otherwise just use this file's folder
+if getattr(sys, "frozen", False):
+    base_dir = sys._MEIPASS
+else:
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+
+app = Flask(
+    __name__,
+    template_folder=os.path.join(base_dir, "templates"),
+    static_folder=os.path.join(base_dir, "static"),
+)
 
 
 @app.route("/")
@@ -54,5 +70,12 @@ def schedule_priority():
     return jsonify(result)
 
 
+def open_browser():
+    # small delay so Flask has time to actually start listening
+    time.sleep(1)
+    webbrowser.open("http://127.0.0.1:5000")
+
+
 if __name__ == "__main__":
-    app.run(debug=True)
+    threading.Thread(target=open_browser).start()
+    app.run(port=5000, debug=False)

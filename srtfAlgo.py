@@ -1,15 +1,5 @@
 def srtf(processes):
-    """
-    processes: list of dicts, each like:
-        {"pid": "P1", "arrival_time": 0, "burst_time": 5}
-
-    Returns a dict with:
-        "gantt": list of {"pid": ..., "start": ..., "end": ...}
-                 (pid is "IDLE" for any gap where the CPU has nothing to run)
-        "table": list of {"pid", "arrival_time", "burst_time",
-                           "start_time", "end_time", "turnaround_time", "waiting_time"}
-    """
-
+    
     procs = []
     for p in processes:
         procs.append({
