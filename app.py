@@ -1,8 +1,8 @@
 import sys
 import os
 import threading
-import webbrowser
 import time
+import webview
 from flask import Flask, render_template, request, jsonify
 from roundRobinAlgo import round_robin
 from srtfAlgo import srtf
@@ -70,12 +70,12 @@ def schedule_priority():
     return jsonify(result)
 
 
-def open_browser():
-    # small delay so Flask has time to actually start listening
-    time.sleep(1)
-    webbrowser.open("http://127.0.0.1:5000")
+def start_server():
+    app.run(port=5000, debug=False, use_reloader=False)
 
 
 if __name__ == "__main__":
-    threading.Thread(target=open_browser).start()
-    app.run(port=5000, debug=False)
+    threading.Thread(target=start_server, daemon=True).start()
+    time.sleep(1)  # give Flask a moment to actually start listening
+    webview.create_window("CPU Scheduling Calculator", "http://127.0.0.1:5000", width=1200, height=800)
+    webview.start()

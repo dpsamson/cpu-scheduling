@@ -11,7 +11,7 @@ def round_robin(processes, quantum):
             "start_time": None,  # set the first time this process actually runs
         })
 
-    # sort by arrival time (then pid, for stable tie-breaking) so we know
+    # sort by arrival time (then pid, for stable tie-breaking) 
     # the order they become "visible"
     procs.sort(key=lambda p: (p["arrival_time"], p["pid"]))
 
