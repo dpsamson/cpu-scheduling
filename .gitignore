@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env
+.vercel
+
+# PyInstaller build artifacts
+build/
+dist/
+*.spec
